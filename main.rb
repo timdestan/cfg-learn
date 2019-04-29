@@ -57,16 +57,19 @@ puts "There are #{lhs_rhs_counts.keys.length} rules in the grammar."
 
 TO_SHOW = ["ADJP","NAC"]
 
-outfile = File.open(UN_FACTORED_OUT, "w+")
-lhs_rhs_prob = Hash.new()
+out_lines = []
 lhs_rhs_counts.each_key do |lhs,rhs|
-  lhs_rhs_prob[[lhs,rhs]] = Float(lhs_rhs_counts[[lhs,rhs]]) / lhs_counts[lhs]
+  prob = Float(lhs_rhs_counts[[lhs,rhs]]) / lhs_counts[lhs]
   case lhs
   when *TO_SHOW
-    outfile.puts "#{lhs} -> #{rhs} = #{lhs_rhs_prob[[lhs,rhs]]}"
+    out_lines << sprintf("%s -> %s = %.6f", lhs, rhs, prob)
   end
 end
-outfile.close
+File.open(UN_FACTORED_OUT, "w+") do |f|
+  out_lines.sort.each do |l|
+    f.puts(l)
+  end
+end
 
 log("Left factoring trees.")
 training_trees.each do |tree|

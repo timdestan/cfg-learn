@@ -53,6 +53,22 @@ fn main() {
       "There are {} rules in the grammar.",
       lhs_rhs_counts.keys().len()
     );
+
+    let mut out_str = join(
+      sorted(lhs_rhs_counts.into_iter().filter_map(|kv| {
+        let ((lhs, rhs), value) = kv;
+        let lhs_count = lhs_counts.get(lhs).expect("missing lhs");
+        let prob = (value as f64) / (*lhs_count as f64);
+        if to_show.contains(&lhs) {
+          Some(format!("{} -> {} = {:.6}", lhs, rhs, prob))
+        } else {
+          None
+        }
+      })),
+      "\n",
+    );
+    out_str += "\n"; // for consistency with ruby version
+    fs::write("unfactored.rs.txt", out_str).expect("error writing file");
   }
 
   println!("Left factoring trees.");
