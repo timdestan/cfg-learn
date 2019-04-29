@@ -32,11 +32,11 @@ training_trees = read_trees(TRAINING_FILENAME)
 log("Done reading trees. There are #{training_trees.length} training trees (top level)")
 
 all_training_rules = Array.new(10 * training_trees.length)
-i = 0
+#i = 0
 capacity = 0
 training_trees.each do |tree|
-  i += 1
-  log("Tree number #{i}") if (i % 1000) == 0
+  #i += 1
+  #log("Tree number #{i}") if (i % 1000) == 0
   some_trees = tree.get_all_trees()
   all_training_rules[capacity, some_trees.length] = some_trees
   capacity += some_trees.length
@@ -74,11 +74,11 @@ training_trees.each do |tree|
 end
 
 all_training_rules = Array.new(10 * training_trees.length)
-i = 0
+#i = 0
 capacity = 0
 training_trees.each do |tree|
-  i += 1
-  log("Tree number #{i}") if (i % 1000) == 0
+  #i += 1
+  #log("Tree number #{i}") if (i % 1000) == 0
   some_trees = tree.get_all_trees()
   all_training_rules[capacity, some_trees.length] = some_trees
   capacity += some_trees.length
@@ -95,12 +95,16 @@ end
 
 puts "There are #{lhs_rhs_counts.keys.length} rules in the left-factored grammar."
 
-outfile = File.open(LEFT_FACTORED_OUT, "w+")
-lhs_rhs_prob = Hash.new()
+out_lines = []
 lhs_rhs_counts.each_key do |lhs,rhs|
-  lhs_rhs_prob[[lhs,rhs]] = Float(lhs_rhs_counts[[lhs,rhs]]) / lhs_counts[lhs]
-  if TO_SHOW.include? lhs or TO_SHOW.any? { |prefix| lhs.index("#{prefix}~") == 0 } 
-    outfile.puts "#{lhs} -> #{rhs} = #{lhs_rhs_prob[[lhs,rhs]]}"
+  prob = Float(lhs_rhs_counts[[lhs,rhs]]) / lhs_counts[lhs]
+  if TO_SHOW.include? lhs or TO_SHOW.any? { |prefix| lhs.index("#{prefix}~") == 0 }
+    out_lines << sprintf("%s -> %s = %.6f", lhs, rhs, prob)
   end
 end
-outfile.close
+
+File.open(LEFT_FACTORED_OUT, "w+") do |f|
+  out_lines.sort.each do |l|
+    f.puts(l)
+  end
+end

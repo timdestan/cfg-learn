@@ -1,5 +1,7 @@
+extern crate itertools;
+
+use itertools::join;
 use std::fmt;
-// use std::str::Chars;
 use std::str::FromStr;
 
 #[derive(PartialEq, Eq, Debug)]
@@ -102,8 +104,8 @@ fn test_parse_tokens() {
 
 #[derive(PartialEq, Eq)]
 pub struct Node {
-  head: String,
-  kids: Vec<Node>,
+  pub head: String,
+  pub kids: Vec<Node>,
 }
 
 impl fmt::Debug for Node {
@@ -115,6 +117,105 @@ impl fmt::Debug for Node {
       write!(f, "({} {:?})", self.head, self.kids)
     }
   }
+}
+
+pub struct TreeIter<'a> {
+  // list of nodes yet to process.
+  stack: Vec<&'a Node>,
+}
+
+impl<'a> Iterator for TreeIter<'a> {
+  type Item = &'a Node;
+
+  fn next(&mut self) -> Option<&'a Node> {
+    let next = match self.stack.pop() {
+      Some(n) => n,
+      None => return None,
+    };
+    for kid in next.kids.iter().rev() {
+      self.stack.push(kid)
+    }
+    Some(next)
+  }
+}
+
+impl Node {
+  pub fn lhs(&self) -> &str {
+    &self.head
+  }
+
+  pub fn rhs(&self) -> String {
+    join(self.kids.iter().map(|k| &k.head), " ")
+  }
+
+  // Currently only used for testing.
+  #[cfg(test)]
+  fn to_cfg_str(&self) -> String {
+    format!("{} -> {}", self.lhs(), self.rhs())
+  }
+
+  pub fn preorder(&self) -> TreeIter {
+    TreeIter { stack: vec![self] }
+  }
+
+  pub fn left_factor<'a>(&'a mut self) {
+    if self.kids.is_empty() {
+      return;
+    }
+    if self.kids.len() > 2 {
+      let k_tail = self.kids.drain(1..).collect();
+      let k_head = self.kids.swap_remove(0);
+      let standin = Node {
+        // Mash names together with ~.
+        head: format!("{}~{}", self.head, k_head.head),
+        kids: k_tail,
+      };
+      self.kids = vec![k_head, standin];
+    }
+    for kid in &mut self.kids {
+      kid.left_factor();
+    }
+  }
+}
+
+#[test]
+fn test_to_cfg_str() {
+  assert_eq!(
+    node("a", vec![cons("b", "_"), cons("c", "_")]).to_cfg_str(),
+    "a -> b c"
+  );
+  assert_eq!(cons("a", "b").to_cfg_str(), "a -> b");
+}
+
+#[test]
+fn test_iteration() {
+  let tree = node(
+    "a",
+    vec![
+      cons("b", "floop"),
+      cons("c", "doop"),
+      node("d", vec![cons("e", "scoop")]),
+    ],
+  );
+
+  // Normally we would filter the unaries, just want to verify this works
+  // though.
+  assert_eq!(
+    tree
+      .preorder()
+      .map(|t| { t.to_cfg_str() })
+      .collect::<Vec<_>>(),
+    vec![
+      "a -> b c d",
+      "b -> floop",
+      "floop -> ",
+      "c -> doop",
+      "doop -> ",
+      "d -> e",
+      "e -> scoop",
+      "scoop -> "
+    ]
+  );
 }
 
 fn leaf(head: &str) -> Node {
