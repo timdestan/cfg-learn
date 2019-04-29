@@ -24,7 +24,7 @@ fn get_all_trees<'a>(trees: &'a Vec<Node>) -> Vec<&'a Node> {
     .iter()
     .flat_map(|t| t.preorder())
     // Exclude POS -> wPOS rules
-    .filter(|t| !t.kids.is_empty() || (t.kids.len() == 1 && t.kids[0].kids.is_empty()))
+    .filter(|t| !t.kids.is_empty() && (!(t.kids.len() == 1 && t.kids[0].kids.is_empty())))
     .collect()
 }
 
