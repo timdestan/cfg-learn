@@ -68,7 +68,7 @@ fn main() {
       "\n",
     );
     out_str += "\n"; // for consistency with ruby version
-    fs::write("unfactored.rs.txt", out_str).expect("error writing file");
+    fs::write("unfactored.txt", out_str).expect("error writing file");
   }
 
   println!("Left factoring trees.");
@@ -108,6 +108,6 @@ fn main() {
       "\n",
     );
     out_str += "\n"; // for consistency with ruby version
-    fs::write("leftfactored.rs.txt", out_str).expect("error writing file");
+    fs::write("leftfactored.txt", out_str).expect("error writing file");
   }
 }
