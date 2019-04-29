@@ -83,7 +83,7 @@ fn main() {
         let ((lhs, rhs), value) = kv;
         let lhs_count = lhs_counts.get(lhs).expect("missing lhs");
         let prob = (value as f64) / (*lhs_count as f64);
-        if to_show.contains(&lhs) || to_show.iter().any(|sym| lhs.contains(&format!("{}~", sym))) {
+        if to_show.contains(&lhs) || to_show.iter().any(|sym| lhs.starts_with(&format!("{}~", sym))) {
           Some(format!("{} -> {} = {:.6}", lhs, rhs, prob))
         } else {
           None
