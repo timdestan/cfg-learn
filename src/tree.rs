@@ -5,25 +5,25 @@ use std::fmt;
 use std::str::FromStr;
 
 #[derive(PartialEq, Eq, Debug)]
-enum Token {
+enum Token<'a> {
   OpenParen,
   CloseParen,
-  Atom(String),
+  Atom(&'a [u8]),
 }
 
-impl fmt::Display for Token {
+impl<'a> fmt::Display for Token<'a> {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     match self {
       Token::OpenParen => write!(f, "("),
       Token::CloseParen => write!(f, ")"),
-      Token::Atom(s) => write!(f, "{}", s),
+      Token::Atom(b) => write!(f, "{}", std::str::from_utf8(b).unwrap()),
     }
   }
 }
 
 #[cfg(test)]
 fn atom(s: &str) -> Token {
-  Token::Atom(s.to_owned())
+  Token::Atom(s.as_bytes())
 }
 
 fn is_ascii_whitespace(b: u8) -> bool {
@@ -60,9 +60,7 @@ fn parse_tokens(s: &str) -> Vec<Token> {
         while i < bytes.len() && is_valid_name_char(bytes[i]) {
           i += 1
         }
-        result.push(Atom(
-          std::str::from_utf8(&bytes[start..i]).unwrap().to_owned(),
-        ))
+        result.push(Atom(&bytes[start..i]));
       }
     }
   }
@@ -218,6 +216,7 @@ fn test_iteration() {
   );
 }
 
+#[cfg(test)]
 fn leaf(head: &str) -> Node {
   Node {
     head: head.to_owned(),
@@ -244,8 +243,12 @@ fn fail<A>(s: &str) -> Result<A, ParseErr> {
   Err(s.to_owned())
 }
 
+fn mk_string(bytes: &[u8]) -> String {
+  std::str::from_utf8(bytes).unwrap().to_owned()
+}
+
 struct Parser<'a> {
-  tokens: &'a [Token],
+  tokens: &'a [Token<'a>],
 }
 
 impl<'a> Parser<'a> {
@@ -267,8 +270,7 @@ impl<'a> Parser<'a> {
   fn expect_atom(&mut self) -> Result<String, ParseErr> {
     match self.next_token() {
       None => fail("Expected word token but found end of input"),
-      // TODO: Get rid of this copy?
-      Some(Token::Atom(s)) => Ok(s.to_owned()),
+      Some(Token::Atom(b)) => Ok(mk_string(b)),
       Some(t) => Err(format!("Expected word token, found {}", t)),
     }
   }
@@ -279,8 +281,11 @@ impl<'a> Parser<'a> {
       None => {
         return fail("Expected '(' or word, found end of input");
       }
-      Some(Token::Atom(s)) => {
-        return Ok(leaf(s));
+      Some(Token::Atom(b)) => {
+        return Ok(Node {
+          head: mk_string(b),
+          kids: vec![],
+        });
       }
       Some(Token::OpenParen) => {
         node = Node {
