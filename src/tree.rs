@@ -1,6 +1,6 @@
 extern crate itertools;
 
-use itertools::join;
+use itertools::Itertools;
 use std::fmt;
 use std::str::FromStr;
 
@@ -145,7 +145,7 @@ impl Node {
   }
 
   pub fn rhs(&self) -> String {
-    join(self.kids.iter().map(|k| &k.head), " ")
+    self.kids.iter().map(|k| &k.head).join(" ")
   }
 
   // Currently only used for testing.

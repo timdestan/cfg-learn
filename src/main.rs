@@ -2,7 +2,7 @@ extern crate itertools;
 
 mod tree;
 
-use itertools::{join, sorted};
+use itertools::Itertools;
 use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
@@ -54,8 +54,9 @@ fn main() {
       lhs_rhs_counts.keys().len()
     );
 
-    let mut out_str = join(
-      sorted(lhs_rhs_counts.into_iter().filter_map(|kv| {
+    let out_str = lhs_rhs_counts
+      .into_iter()
+      .filter_map(|kv| {
         let ((lhs, rhs), value) = kv;
         let lhs_count = lhs_counts.get(lhs).expect("missing lhs");
         let prob = (value as f64) / (*lhs_count as f64);
@@ -64,10 +65,10 @@ fn main() {
         } else {
           None
         }
-      })),
-      "\n",
-    );
-    out_str += "\n"; // for consistency with ruby version
+      })
+      .sorted()
+      .join("\n")
+      + "\n";
     fs::write("unfactored.txt", out_str).expect("error writing file");
   }
 
@@ -94,20 +95,25 @@ fn main() {
       lhs_rhs_counts.keys().len()
     );
 
-    let mut out_str = join(
-      sorted(lhs_rhs_counts.into_iter().filter_map(|kv| {
+    let out_str = lhs_rhs_counts
+      .into_iter()
+      .filter_map(|kv| {
         let ((lhs, rhs), value) = kv;
         let lhs_count = lhs_counts.get(lhs).expect("missing lhs");
         let prob = (value as f64) / (*lhs_count as f64);
-        if to_show.contains(&lhs) || to_show.iter().any(|sym| lhs.starts_with(&format!("{}~", sym))) {
+        if to_show.contains(&lhs)
+          || to_show
+            .iter()
+            .any(|sym| lhs.starts_with(&format!("{}~", sym)))
+        {
           Some(format!("{} -> {} = {:.6}", lhs, rhs, prob))
         } else {
           None
         }
-      })),
-      "\n",
-    );
-    out_str += "\n"; // for consistency with ruby version
+      })
+      .sorted()
+      .join("\n")
+      + "\n";
     fs::write("leftfactored.txt", out_str).expect("error writing file");
   }
 }
