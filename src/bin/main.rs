@@ -29,7 +29,7 @@ fn get_all_trees<'a>(trees: &'a Vec<Node>) -> Vec<&'a Node> {
 
 fn main() {
   println!("Parsing trees");
-  let mut trees = parse_nodes_from_file("f2-21.train.parse.noLEX").expect("Failed to parse");
+  let mut trees = parse_nodes_from_file("data/f2-21.train.parse.noLEX").expect("Failed to parse");
   println!("Done parsing {} trees (top level)", trees.len());
   let all_trees = get_all_trees(&trees);
   println!("Expanded to {} trees", all_trees.len());
@@ -68,7 +68,7 @@ fn main() {
       .sorted()
       .join("\n")
       + "\n";
-    fs::write("unfactored.txt", out_str).expect("error writing file");
+    fs::write("data/unfactored.txt", out_str).expect("error writing file");
   }
 
   println!("Left factoring trees.");
@@ -113,6 +113,6 @@ fn main() {
       .sorted()
       .join("\n")
       + "\n";
-    fs::write("leftfactored.txt", out_str).expect("error writing file");
+    fs::write("data/leftfactored.txt", out_str).expect("error writing file");
   }
 }
