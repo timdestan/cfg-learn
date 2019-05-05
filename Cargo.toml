@@ -1,16 +1,8 @@
 [package]
-name = "cfg-learn"
+name = "cfg_learn"
 version = "0.1.0"
 authors = ["Tim Destan <tim.destan@gmail.com>"]
 edition = "2018"
 
 [dependencies]
 itertools = "0.8.0"
-
-[[bin]]
-name = "cfg-learn"
-path = "src/main.rs"
-
-[[bin]]
-name = "pp"
-path = "src/pp.rs"

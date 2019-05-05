@@ -1,12 +1,11 @@
+extern crate cfg_learn;
 extern crate itertools;
 
-mod tree;
-
+use cfg_learn::Node;
 use itertools::Itertools;
 use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
-use tree::Node;
 
 fn parse_nodes_from_file(fname: &str) -> Result<Vec<Node>, String> {
   let mut trees = vec![];

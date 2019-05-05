@@ -1,10 +1,10 @@
 // Pretty print a single tree.
 
-mod tree;
+extern crate cfg_learn;
 
+use cfg_learn::Node;
 use std::fs;
 use std::str::FromStr;
-use tree::Node;
 
 fn main() {
   let args = std::env::args().collect::<Vec<_>>();
