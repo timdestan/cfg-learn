@@ -1,18 +1,14 @@
-extern crate cfg_learn;
-extern crate itertools;
-
 use cfg_learn::Node;
 use itertools::Itertools;
 use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
 
-fn parse_nodes_from_file(fname: &str) -> Result<Vec<Node>, String> {
+type GenError = Box<std::error::Error>;
+
+fn parse_nodes_from_file(fname: &str) -> Result<Vec<Node>, GenError> {
     let mut trees = vec![];
-    for line in fs::read_to_string(fname)
-        .expect("Failed to read file")
-        .lines()
-    {
+    for line in fs::read_to_string(fname)?.lines() {
         trees.push(Node::from_str(line)?);
     }
     Ok(trees)
@@ -27,9 +23,9 @@ fn get_all_trees<'a>(trees: &'a Vec<Node>) -> Vec<&'a Node> {
         .collect()
 }
 
-fn main() {
+fn main() -> Result<(), GenError> {
     println!("Parsing trees");
-    let mut trees = parse_nodes_from_file("data/f2-21.train.parse.noLEX").expect("Failed to parse");
+    let mut trees = parse_nodes_from_file("data/f2-21.train.parse.noLEX")?;
     println!("Done parsing {} trees (top level)", trees.len());
     let all_trees = get_all_trees(&trees);
     println!("Expanded to {} trees", all_trees.len());
@@ -68,7 +64,7 @@ fn main() {
             .sorted()
             .join("\n")
             + "\n";
-        fs::write("data/unfactored.txt", out_str).expect("error writing file");
+        fs::write("data/unfactored.txt", out_str)?;
     }
 
     println!("Left factoring trees.");
@@ -113,6 +109,7 @@ fn main() {
             .sorted()
             .join("\n")
             + "\n";
-        fs::write("data/leftfactored.txt", out_str).expect("error writing file");
+        fs::write("data/leftfactored.txt", out_str)?;
     }
+    Ok(())
 }

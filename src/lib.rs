@@ -1,5 +1,3 @@
-extern crate itertools;
-
 use itertools::Itertools;
 use std::fmt;
 use std::str::FromStr;
