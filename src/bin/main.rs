@@ -1,6 +1,6 @@
 use cfg_learn::Node;
+use defaultmap::DefaultHashMap;
 use itertools::Itertools;
-use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
 
@@ -34,14 +34,12 @@ fn main() -> Result<(), GenError> {
     let to_show = ["ADJP", "NAC"];
 
     {
-        let mut lhs_counts = HashMap::new();
-        let mut lhs_rhs_counts = HashMap::new();
+        let mut lhs_counts = DefaultHashMap::new(0);
+        let mut lhs_rhs_counts = DefaultHashMap::new(0);
 
         for tree in &all_trees {
-            let lhs_counter = lhs_counts.entry(tree.lhs()).or_insert(0);
-            *lhs_counter += 1;
-            let lhs_rhs_counter = lhs_rhs_counts.entry((tree.lhs(), tree.rhs())).or_insert(0);
-            *lhs_rhs_counter += 1;
+            lhs_counts[tree.lhs()] += 1;
+            lhs_rhs_counts[(tree.lhs(), tree.rhs())] += 1;
         }
 
         println!(
@@ -50,11 +48,11 @@ fn main() -> Result<(), GenError> {
         );
 
         let out_str = lhs_rhs_counts
-            .into_iter()
+            .iter()
             .filter_map(|kv| {
                 let ((lhs, rhs), value) = kv;
-                let lhs_count = lhs_counts.get(lhs).expect("missing lhs");
-                let prob = (value as f64) / (*lhs_count as f64);
+                let lhs_count = lhs_counts[lhs];
+                let prob = (*value as f64) / (lhs_count as f64);
                 if to_show.contains(&lhs) {
                     Some(format!("{} -> {} = {:.6}", lhs, rhs, prob))
                 } else {
@@ -75,14 +73,12 @@ fn main() -> Result<(), GenError> {
     let all_lf_trees = get_all_trees(&trees);
 
     {
-        let mut lhs_counts = HashMap::new();
-        let mut lhs_rhs_counts = HashMap::new();
+        let mut lhs_counts = DefaultHashMap::new(0);
+        let mut lhs_rhs_counts = DefaultHashMap::new(0);
 
         for tree in &all_lf_trees {
-            let lhs_counter = lhs_counts.entry(tree.lhs()).or_insert(0);
-            *lhs_counter += 1;
-            let lhs_rhs_counter = lhs_rhs_counts.entry((tree.lhs(), tree.rhs())).or_insert(0);
-            *lhs_rhs_counter += 1;
+            lhs_counts[tree.lhs()] += 1;
+            lhs_rhs_counts[(tree.lhs(), tree.rhs())] += 1;
         }
 
         println!(
@@ -91,11 +87,11 @@ fn main() -> Result<(), GenError> {
         );
 
         let out_str = lhs_rhs_counts
-            .into_iter()
+            .iter()
             .filter_map(|kv| {
                 let ((lhs, rhs), value) = kv;
-                let lhs_count = lhs_counts.get(lhs).expect("missing lhs");
-                let prob = (value as f64) / (*lhs_count as f64);
+                let lhs_count = lhs_counts[lhs];
+                let prob = (*value as f64) / (lhs_count as f64);
                 if to_show.contains(&lhs)
                     || to_show
                         .iter()

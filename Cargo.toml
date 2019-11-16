@@ -5,4 +5,5 @@ authors = ["Tim Destan <tim.destan@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+defaultmap = "0.4.0"
 itertools = "0.8.0"
