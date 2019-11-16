@@ -4,7 +4,7 @@ use cfg_learn::Node;
 use std::fs;
 use std::str::FromStr;
 
-fn main() -> Result<(), Box<std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = std::env::args().collect::<Vec<_>>();
     if args.len() != 2 {
         println!("Expected single filename arg");

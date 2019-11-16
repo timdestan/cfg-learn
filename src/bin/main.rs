@@ -4,7 +4,7 @@ use itertools::Itertools;
 use std::fs;
 use std::str::FromStr;
 
-type GenError = Box<std::error::Error>;
+type GenError = Box<dyn std::error::Error>;
 
 fn parse_nodes_from_file(fname: &str) -> Result<Vec<Node>, GenError> {
     let mut trees = vec![];
